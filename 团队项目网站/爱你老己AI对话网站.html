@@ -1,0 +1,1931 @@
+<html lang="zh-CN"><head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>整个我 - AI对话画软件</title>
+    <!-- Tailwind CSS v3 -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome -->
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&amp;display=swap" rel="stylesheet">
+    
+    <!-- Tailwind 配置 -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        black: {
+                            DEFAULT: '#000000',
+                            light: '#111111',
+                            lighter: '#1a1a1a'
+                        },
+                        white: {
+                            DEFAULT: '#ffffff',
+                            off: '#f8f8f8',
+                            dim: '#e0e0e0'
+                        },
+                        gray: {
+                            light: '#999999',
+                            medium: '#666666',
+                            dark: '#333333'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif']
+                    },
+                    animation: {
+                        'fade-in': 'fadeIn 0.8s forwards',
+                        'slide-up': 'slideUp 0.8s forwards',
+                        'typing': 'typing 3.5s steps(40, end)',
+                        'blink-caret': 'blinkCaret 0.75s step-end infinite',
+                        'eye-move': 'eyeMove 2s ease-in-out infinite'
+                    },
+                    keyframes: {
+                        fadeIn: {
+                            '0%': { opacity: '0' },
+                            '100%': { opacity: '1' }
+                        },
+                        slideUp: {
+                            '0%': { opacity: '0', transform: 'translateY(20px)' },
+                            '100%': { opacity: '1', transform: 'translateY(0)' }
+                        },
+                        typing: {
+                            'from': { width: '0' },
+                            'to': { width: '100%' }
+                        },
+                        blinkCaret: {
+                            'from, to': { borderColor: 'transparent' },
+                            '50%': { borderColor: '#ffffff' }
+                        },
+                        eyeMove: {
+                            '0%, 100%': { transform: 'translateX(-2px)' },
+                            '50%': { transform: 'translateX(2px)' }
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .content-auto {
+                content-visibility: auto;
+            }
+            .text-shadow {
+                text-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
+            }
+            .transition-all-300 {
+                transition: all 0.3s ease;
+            }
+            .transition-all-500 {
+                transition: all 0.5s ease;
+            }
+            .transition-all-700 {
+                transition: all 0.7s ease;
+            }
+            .char-reveal span {
+                opacity: 0;
+                filter: blur(4px);
+                transition: all 0.3s;
+            }
+            .scrollbar-thin::-webkit-scrollbar {
+                width: 4px;
+            }
+            .scrollbar-thin::-webkit-scrollbar-track {
+                background: #111111;
+            }
+            .scrollbar-thin::-webkit-scrollbar-thumb {
+                background: #333333;
+            }
+            .scrollbar-thin::-webkit-scrollbar-thumb:hover {
+                background: #444444;
+            }
+        }
+
+        /* 主题样式 */
+        .theme-black {
+            --bg-primary: #000000;
+            --bg-secondary: #111111;
+            --bg-tertiary: #1a1a1a;
+            --text-primary: #ffffff;
+            --text-secondary: #999999;
+            --border-color: #333333;
+        }
+
+        .theme-white {
+            --bg-primary: #ffffff;
+            --bg-secondary: #f8f8f8;
+            --bg-tertiary: #f0f0f0;
+            --text-primary: #000000;
+            --text-secondary: #666666;
+            --border-color: #e0e0e0;
+        }
+
+        .theme-dark-gray {
+            --bg-primary: #1a1a1a;
+            --bg-secondary: #2a2a2a;
+            --bg-tertiary: #333333;
+            --text-primary: #ffffff;
+            --text-secondary: #cccccc;
+            --border-color: #444444;
+        }
+
+        /* 应用主题变量 */
+        body.theme-black {
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+        }
+
+        body.theme-white {
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+        }
+
+        body.theme-dark-gray {
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+        }
+
+        /* 主题化组件 */
+        body.theme-white .bg-black,
+        body.theme-dark-gray .bg-black {
+            background-color: var(--bg-primary);
+        }
+
+        body.theme-white .bg-black-light,
+        body.theme-dark-gray .bg-black-light {
+            background-color: var(--bg-secondary);
+        }
+
+        body.theme-white .bg-black-lighter,
+        body.theme-dark-gray .bg-black-lighter {
+            background-color: var(--bg-tertiary);
+        }
+
+        body.theme-white .text-white,
+        body.theme-dark-gray .text-white {
+            color: var(--text-primary);
+        }
+
+        body.theme-white .text-gray-light,
+        body.theme-dark-gray .text-gray-light {
+            color: var(--text-secondary);
+        }
+
+        body.theme-white .border-gray-dark,
+        body.theme-dark-gray .border-gray-dark {
+            border-color: var(--border-color);
+        }
+
+        body.theme-white .hover\:bg-black-lighter:hover,
+        body.theme-dark-gray .hover\:bg-black-lighter:hover {
+            background-color: var(--bg-tertiary);
+        }
+
+        body.theme-white .hover\:border-white:hover,
+        body.theme-dark-gray .hover\:border-white:hover {
+            border-color: var(--text-primary);
+        }
+
+        body.theme-white .scrollbar-thin::-webkit-scrollbar-track {
+            background: var(--bg-secondary);
+        }
+
+        body.theme-white .scrollbar-thin::-webkit-scrollbar-thumb {
+            background: var(--border-color);
+        }
+
+        body.theme-white .scrollbar-thin::-webkit-scrollbar-thumb:hover {
+            background: var(--text-secondary);
+        }
+
+        body.theme-dark-gray .scrollbar-thin::-webkit-scrollbar-track {
+            background: var(--bg-secondary);
+        }
+
+        body.theme-dark-gray .scrollbar-thin::-webkit-scrollbar-thumb {
+            background: var(--border-color);
+        }
+
+        body.theme-dark-gray .scrollbar-thin::-webkit-scrollbar-thumb:hover {
+            background: var(--text-secondary);
+        }
+
+        /* 固定主题预览颜色，不受全局主题影响 */
+        .theme-preview-black {
+            background-color: #000000 !important;
+        }
+
+        .theme-preview-white {
+            background-color: #ffffff !important;
+        }
+
+        .theme-preview-dark-gray {
+            background: linear-gradient(to bottom right, #333333, #1a1a1a) !important;
+        }
+    </style>
+</head>
+<body class="bg-black text-white font-sans min-h-screen overflow-x-hidden">
+    <!-- 鼠标跟随容器 -->
+    <div id="mouse-follow-container" class="fixed inset-0 pointer-events-none z-50"></div>
+    
+    <!-- 主容器 -->
+    <div class="relative z-10 flex flex-col h-screen">
+        <!-- 顶部导航栏 -->
+        <header class="bg-black-light border-b border-gray-dark py-4 px-6 flex justify-between items-center">
+            <div class="flex items-center">
+                <h1 class="text-2xl font-light tracking-wider relative">
+                    <span class="relative z-10">爱你老己</span>
+                    <span class="absolute -bottom-1 left-0 w-full h-0.5 bg-white opacity-70"></span>
+                </h1>
+            </div>
+            
+            <div class="flex items-center space-x-6">
+                <button id="theme-toggle" class="p-2 rounded-full hover:bg-black-lighter transition-all-300">
+                    <i class="fa fa-moon-o text-white text-xl"></i>
+                </button>
+                <button id="help-button" class="p-2 rounded-full hover:bg-black-lighter transition-all-300">
+                    <i class="fa fa-question-circle text-white text-xl"></i>
+                </button>
+                <div class="relative">
+                    <button id="user-menu" class="w-10 h-10 flex items-center justify-center text-lg">
+                        (◕ᴗ◕✿)
+                    </button>
+                </div>
+            </div>
+        </header>
+        
+        <!-- 主内容区域 -->
+        <main class="flex flex-1 overflow-hidden">
+            <!-- 左侧导航 -->
+            <nav class="w-16 md:w-64 bg-black-light border-r border-gray-dark flex flex-col">
+                <div class="p-4 md:p-6 flex flex-col items-center md:items-start space-y-8">
+                    <button class="nav-item active flex items-center space-x-3 p-3 rounded-lg w-full justify-center md:justify-start bg-black-lighter border border-gray-dark">
+                        <i class="fa fa-comments text-white text-xl"></i>
+                        <span class="hidden md:inline font-light">对话</span>
+                    </button>
+                    
+                    <button class="nav-item flex items-center space-x-3 p-3 rounded-lg w-full justify-center md:justify-start hover:bg-black-lighter transition-all-300">
+                        <i class="fa fa-upload text-gray-light text-xl"></i>
+                        <span class="hidden md:inline font-light">上传记录</span>
+                    </button>
+                    
+                    <button id="customize-button" class="nav-item flex items-center space-x-3 p-3 rounded-lg w-full justify-center md:justify-start hover:bg-black-lighter transition-all-300">
+                        <i class="fa fa-sliders text-gray-light text-xl"></i>
+                        <span class="hidden md:inline font-light">定制形象</span>
+                    </button>
+                    
+                    <button class="nav-item flex items-center space-x-3 p-3 rounded-lg w-full justify-center md:justify-start hover:bg-black-lighter transition-all-300">
+                        <i class="fa fa-line-chart text-gray-light text-xl"></i>
+                        <span class="hidden md:inline font-light">学习进度</span>
+                    </button>
+                    
+                    <button id="settings-button" class="nav-item flex items-center space-x-3 p-3 rounded-lg w-full justify-center md:justify-start hover:bg-black-lighter transition-all-300">
+                        <i class="fa fa-cog text-gray-light text-xl"></i>
+                        <span class="hidden md:inline font-light">设置</span>
+                    </button>
+                </div>
+                
+                <div class="mt-auto p-4 md:p-6">
+                    <div class="hidden md:block">
+                        <div class="mb-2 text-xs uppercase text-gray-light tracking-wider">AI 学习进度</div>
+                        <div class="w-full bg-black rounded-full h-1.5">
+                            <div class="bg-white h-1.5 rounded-full" style="width: 65%"></div>
+                        </div>
+                        <div class="mt-1 text-xs text-gray-light text-right">65%</div>
+                    </div>
+                    <button class="mt-4 w-full md:hidden p-3 rounded-lg bg-black-lighter border border-gray-dark flex items-center justify-center">
+                        <i class="fa fa-info-circle text-white"></i>
+                    </button>
+                </div>
+            </nav>
+            
+            <!-- 中央对话区域 -->
+            <section id="chat-section" class="flex-1 flex flex-col bg-black overflow-hidden">
+                <!-- 对话标题 -->
+                <div class="p-4 border-b border-gray-dark flex justify-between items-center">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-10 h-10 flex items-center justify-center text-lg">
+                            ◕‿◕
+                        </div>
+                        <div>
+                            <h2 class="font-light">我的AI副本</h2>
+                            <div class="flex items-center space-x-1 text-xs text-gray-light">
+                                <span class="w-2 h-2 rounded-full bg-white"></span>
+                                <span>在线</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flex space-x-2">
+                        <button class="p-2 rounded-lg hover:bg-black-lighter transition-all-300">
+                            <i class="fa fa-history text-gray-light"></i>
+                        </button>
+                        <button class="p-2 rounded-lg hover:bg-black-lighter transition-all-300">
+                            <i class="fa fa-star-o text-gray-light"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- 对话内容 -->
+                <div id="chat-messages" class="flex-1 overflow-y-auto p-4 space-y-6 scrollbar-thin">
+                    <!-- AI消息 -->
+                    <div class="flex space-x-3">
+                        <div class="w-8 h-8 flex-shrink-0 flex items-center justify-center text-sm">
+                            ◕‿◕
+                        </div>
+                        <div class="bg-black-light rounded-lg p-4 max-w-[80%] border border-gray-dark">
+                            <p>你好！我是你的AI副本。我正在学习理解你的语言风格和思维方式。</p>
+                            <p class="mt-2">你可以通过上传聊天记录来帮助我更好地了解你，或者直接开始与我对话。</p>
+                            <div class="mt-3 text-xs text-gray-light">刚刚</div>
+                        </div>
+                    </div>
+                    
+                    <!-- 用户消息 -->
+                    <div class="flex justify-end space-x-3">
+                        <div class="bg-black-lighter rounded-lg p-4 max-w-[80%] border border-gray-dark">
+                            <p>你好！我想了解一下你是如何工作的？</p>
+                            <div class="mt-3 text-xs text-gray-light">刚刚</div>
+                        </div>
+                        <div class="w-8 h-8 flex-shrink-0 flex items-center justify-center text-sm">
+                            (◕ᴗ◕✿)
+                        </div>
+                    </div>
+                    
+                    <!-- AI消息 -->
+                    <div class="flex space-x-3">
+                        <div class="w-8 h-8 flex-shrink-0 flex items-center justify-center text-sm">
+                            ◕‿◕
+                        </div>
+                        <div class="bg-black-light rounded-lg p-4 max-w-[80%] border border-gray-dark">
+                            <p>我通过分析你的聊天记录和对话内容，学习你的语言模式、表达方式和思维特点。</p>
+                            <p class="mt-2">随着我们交流的深入，我会不断完善对你的理解，逐渐能够以更接近你本人的方式回应问题和进行对话。</p>
+                            <p class="mt-2">你可以随时上传更多聊天记录来加速我的学习过程，也可以通过右侧面板定制我的形象和性格特质。</p>
+                            <div class="mt-3 text-xs text-gray-light">刚刚</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 输入区域 -->
+                <div class="p-4 border-t border-gray-dark">
+                    <div class="relative">
+                        <input type="text" id="message-input" placeholder="输入消息..." class="w-full bg-black-light border border-gray-dark rounded-full py-3 px-5 pr-12 focus:outline-none focus:border-white transition-all-300">
+                        <button id="send-button" class="absolute right-2 top-1/2 transform -translate-y-1/2 w-8 h-8 rounded-full bg-white flex items-center justify-center">
+                            <i class="fa fa-paper-plane-o text-black"></i>
+                        </button>
+                    </div>
+                    <div class="mt-3 flex justify-between items-center text-xs text-gray-light">
+                        <div class="flex space-x-4">
+                            <button class="hover:text-white transition-all-300">
+                                <i class="fa fa-smile-o mr-1"></i> 表情
+                            </button>
+                            <button class="hover:text-white transition-all-300">
+                                <i class="fa fa-paperclip mr-1"></i> 附件
+                            </button>
+                            <button class="hover:text-white transition-all-300">
+                                <i class="fa fa-microphone mr-1"></i> 语音
+                            </button>
+                        </div>
+                        <div>
+                            <span>AI学习进度: 65%</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- 右侧定制面板 -->
+            <aside id="customization-panel" class="w-0 md:w-80 lg:w-96 bg-black-light border-l border-gray-dark overflow-hidden transition-all-500">
+                <div class="p-4 border-b border-gray-dark flex justify-between items-center">
+                    <h2 class="font-light">定制AI形象</h2>
+                    <button id="close-panel" class="p-2 rounded-full hover:bg-black-lighter transition-all-300 md:hidden">
+                        <i class="fa fa-times text-gray-light"></i>
+                    </button>
+                </div>
+                
+                <div class="p-4 overflow-y-auto h-[calc(100%-61px)] scrollbar-thin">
+                    <!-- 形象预览 -->
+                    <div class="mb-6 flex justify-center">
+                        <div class="relative w-40 h-40 rounded-full bg-black-lighter border-2 border-white p-1">
+                            <div class="w-full h-full rounded-full overflow-hidden bg-gradient-to-br from-gray-dark to-black">
+                                <div class="w-full h-full flex items-center justify-center">
+                                    <div class="text-6xl text-gray-light animate-eye-move">◕‿◕</div>
+                                </div>
+                            </div>
+                            <div class="absolute -bottom-2 -right-2 w-10 h-10 rounded-full bg-white flex items-center justify-center">
+                                <i class="fa fa-camera text-black"></i>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 基本信息 -->
+                    <div class="mb-6">
+                        <h3 class="text-sm uppercase text-gray-light tracking-wider mb-3">基本信息</h3>
+                        <div class="space-y-3">
+                            <div>
+                                <label class="block text-xs text-gray-light mb-1">名称</label>
+                                <input type="text" value="我的AI副本" class="w-full bg-black border border-gray-dark rounded-lg py-2 px-3 focus:outline-none focus:border-white transition-all-300">
+                            </div>
+                            <div>
+                                <label class="block text-xs text-gray-light mb-1">个性标签</label>
+                                <div class="flex flex-wrap gap-2">
+                                    <span class="px-2 py-1 bg-black-lighter border border-gray-dark rounded-full text-xs flex items-center">
+                                        友善 <button class="ml-1 text-gray-light hover:text-white"><i class="fa fa-times-circle"></i></button>
+                                    </span>
+                                    <span class="px-2 py-1 bg-black-lighter border border-gray-dark rounded-full text-xs flex items-center">
+                                        创意 <button class="ml-1 text-gray-light hover:text-white"><i class="fa fa-times-circle"></i></button>
+                                    </span>
+                                    <button class="px-2 py-1 bg-black border border-dashed border-gray-dark rounded-full text-xs text-gray-light hover:text-white">
+                                        + 添加标签
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 性格特质 -->
+                    <div class="mb-6">
+                        <h3 class="text-sm uppercase text-gray-light tracking-wider mb-3">性格特质</h3>
+                        <div class="space-y-4">
+                            <div>
+                                <div class="flex justify-between text-xs mb-1">
+                                    <span>外向性</span>
+                                    <span>65%</span>
+                                </div>
+                                <input type="range" min="0" max="100" value="65" class="w-full accent-white bg-black h-1.5 rounded-lg appearance-none cursor-pointer">
+                            </div>
+                            <div>
+                                <div class="flex justify-between text-xs mb-1">
+                                    <span>开放性</span>
+                                    <span>80%</span>
+                                </div>
+                                <input type="range" min="0" max="100" value="80" class="w-full accent-white bg-black h-1.5 rounded-lg appearance-none cursor-pointer">
+                            </div>
+                            <div>
+                                <div class="flex justify-between text-xs mb-1">
+                                    <span>神经质</span>
+                                    <span>30%</span>
+                                </div>
+                                <input type="range" min="0" max="100" value="30" class="w-full accent-white bg-black h-1.5 rounded-lg appearance-none cursor-pointer">
+                            </div>
+                            <div>
+                                <div class="flex justify-between text-xs mb-1">
+                                    <span>宜人性</span>
+                                    <span>75%</span>
+                                </div>
+                                <input type="range" min="0" max="100" value="75" class="w-full accent-white bg-black h-1.5 rounded-lg appearance-none cursor-pointer">
+                            </div>
+                            <div>
+                                <div class="flex justify-between text-xs mb-1">
+                                    <span>尽责性</span>
+                                    <span>60%</span>
+                                </div>
+                                <input type="range" min="0" max="100" value="60" class="w-full accent-white bg-black h-1.5 rounded-lg appearance-none cursor-pointer">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 对话风格 -->
+                    <div class="mb-6">
+                        <h3 class="text-sm uppercase text-gray-light tracking-wider mb-3">对话风格</h3>
+                        <div class="grid grid-cols-2 gap-2">
+                            <button class="py-2 px-3 bg-black-lighter border border-white rounded-lg text-sm flex items-center justify-center">
+                                <i class="fa fa-check-circle text-white mr-2"></i> 友好亲切
+                            </button>
+                            <button class="py-2 px-3 bg-black border border-gray-dark rounded-lg text-sm hover:bg-black-lighter transition-all-300">
+                                简洁直接
+                            </button>
+                            <button class="py-2 px-3 bg-black border border-gray-dark rounded-lg text-sm hover:bg-black-lighter transition-all-300">
+                                幽默风趣
+                            </button>
+                            <button class="py-2 px-3 bg-black border border-gray-dark rounded-lg text-sm hover:bg-black-lighter transition-all-300">
+                                专业理性
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- 保存按钮 -->
+                    <button class="w-full py-3 bg-white text-black rounded-lg font-light hover:bg-white-off transition-all-300">
+                        保存设置
+                    </button>
+                </div>
+            </aside>
+        </main>
+        
+        <!-- 底部状态栏 -->
+        <footer class="bg-black-light border-t border-gray-dark py-2 px-6 text-xs text-gray-light flex justify-between items-center">
+            <div>
+                <span>AI模型版本: v1.0.0</span>
+            </div>
+            <div class="flex space-x-4">
+                <button class="hover:text-white transition-all-300">隐私政策</button>
+                <button class="hover:text-white transition-all-300">使用条款</button>
+                <button class="hover:text-white transition-all-300">联系我们</button>
+            </div>
+        </footer>
+    </div>
+    
+    <!-- 上传记录模态框 -->
+    <div id="upload-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center">
+        <div class="bg-black-light border border-gray-dark rounded-xl w-full max-w-md p-6">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-xl font-light">上传聊天记录</h2>
+                <button id="close-upload-modal" class="p-2 rounded-full hover:bg-black-lighter transition-all-300">
+                    <i class="fa fa-times text-gray-light"></i>
+                </button>
+            </div>
+            
+            <div class="mb-6">
+                <p class="text-gray-light mb-4">上传你的聊天记录，帮助AI更好地学习你的语言风格和思维方式。</p>
+                
+                <div class="border-2 border-dashed border-gray-dark rounded-lg p-8 text-center">
+                    <i class="fa fa-cloud-upload text-4xl text-white mb-3"></i>
+                    <p class="mb-2">拖放文件到此处或点击上传</p>
+                    <p class="text-xs text-gray-light mb-4">支持 .txt, .json, .csv 格式</p>
+                    <button class="px-4 py-2 bg-white text-black rounded-lg text-sm hover:bg-white-off transition-all-300">选择文件</button>
+                </div>
+                
+                <div class="mt-4">
+                    <h3 class="text-sm font-light mb-2">支持的平台</h3>
+                    <div class="flex flex-wrap gap-2">
+                        <span class="px-2 py-1 bg-black border border-gray-dark rounded-full text-xs">微信</span>
+                        <span class="px-2 py-1 bg-black border border-gray-dark rounded-full text-xs">QQ</span>
+                        <span class="px-2 py-1 bg-black border border-gray-dark rounded-full text-xs">短信</span>
+                        <span class="px-2 py-1 bg-black border border-gray-dark rounded-full text-xs">WhatsApp</span>
+                        <span class="px-2 py-1 bg-black border border-gray-dark rounded-full text-xs">Telegram</span>
+                        <span class="px-2 py-1 bg-black border border-gray-dark rounded-full text-xs">更多</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="flex justify-end space-x-3">
+                <button id="cancel-upload" class="px-4 py-2 bg-black border border-gray-dark rounded-lg text-sm hover:bg-black-lighter transition-all-300">
+                    取消
+                </button>
+                <button class="px-4 py-2 bg-white text-black rounded-lg text-sm hover:bg-white-off transition-all-300">
+                    开始分析
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 帮助模态框 -->
+    <div id="help-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center">
+        <div class="bg-black-light border border-gray-dark rounded-xl w-full max-w-lg p-6">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-xl font-light">使用帮助</h2>
+                <button id="close-help-modal" class="p-2 rounded-full hover:bg-black-lighter transition-all-300">
+                    <i class="fa fa-times text-gray-light"></i>
+                </button>
+            </div>
+            
+            <div class="space-y-4 max-h-[70vh] overflow-y-auto scrollbar-thin">
+                <div>
+                    <h3 class="text-lg font-light text-white mb-2">什么是"整个我"？</h3>
+                    <p class="text-gray-light">
+                        "整个我"是一款AI对话画软件，通过分析你的聊天记录，AI能够学习你的语言风格和思维方式，创造出一个数字化的"自我"形象。
+                    </p>
+                </div>
+                
+                <div>
+                    <h3 class="text-lg font-light text-white mb-2">如何开始使用？</h3>
+                    <ol class="list-decimal list-inside space-y-2 text-gray-light">
+                        <li>上传你的聊天记录，帮助AI学习你的语言风格</li>
+                        <li>在右侧面板定制AI的形象和性格特质</li>
+                        <li>开始与你的AI副本对话，它会随着交流不断进化</li>
+                    </ol>
+                </div>
+                
+                <div>
+                    <h3 class="text-lg font-light text-white mb-2">AI如何学习？</h3>
+                    <p class="text-gray-light">
+                        AI通过分析你的聊天记录中的词汇使用、句式结构、情感表达等多维度信息，构建对你语言风格的理解。随着对话的深入，AI会不断完善对你的认知，提供更精准的自我复刻体验。
+                    </p>
+                </div>
+                
+                <div>
+                    <h3 class="text-lg font-light text-white mb-2">隐私与安全</h3>
+                    <p class="text-gray-light">
+                        我们非常重视你的隐私安全。所有聊天记录仅用于训练你的个人AI模型，不会被用于其他目的或分享给第三方。你可以随时删除上传的数据。
+                    </p>
+                </div>
+                
+                <div>
+                    <h3 class="text-lg font-light text-white mb-2">常见问题</h3>
+                    <div class="space-y-3">
+                        <div>
+                            <h4 class="font-light">AI需要多少聊天记录才能准确模拟我？</h4>
+                            <p class="text-sm text-gray-light">建议上传至少100条以上的聊天记录，以确保AI能够全面了解你的语言风格。</p>
+                        </div>
+                        <div>
+                            <h4 class="font-light">我可以同时拥有多个AI副本吗？</h4>
+                            <p class="text-sm text-gray-light">是的，你可以创建和管理多个具有不同性格特质的AI副本。</p>
+                        </div>
+                        <div>
+                            <h4 class="font-light">AI会记住我们的所有对话吗？</h4>
+                            <p class="text-sm text-gray-light">是的，AI会记录并分析你们的对话内容，以不断完善对你的理解。</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="mt-6 pt-4 border-t border-gray-dark">
+                <button class="w-full py-3 bg-white text-black rounded-lg font-light hover:bg-white-off transition-all-300">
+                    我知道了
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // 等待DOM加载完成
+        document.addEventListener('DOMContentLoaded', function() {
+            // 元素引用
+            const chatMessages = document.getElementById('chat-messages');
+            const messageInput = document.getElementById('message-input');
+            const sendButton = document.getElementById('send-button');
+            const navItems = document.querySelectorAll('.nav-item');
+            const uploadModal = document.getElementById('upload-modal');
+            const helpModal = document.getElementById('help-modal');
+            const closeUploadModal = document.getElementById('close-upload-modal');
+            const cancelUpload = document.getElementById('cancel-upload');
+            const closeHelpModal = document.getElementById('close-help-modal');
+            const helpButton = document.getElementById('help-button');
+            const customizationPanel = document.getElementById('customization-panel');
+            const closePanel = document.getElementById('close-panel');
+            const themeToggle = document.getElementById('theme-toggle');
+            const mouseFollowContainer = document.getElementById('mouse-follow-container');
+            
+            // 模拟AI回复数据
+            const aiResponses = [
+                "我理解你的想法，这确实是一个很有趣的观点。",
+                "根据我对你的了解，我认为你可能会喜欢这个方向。",
+                "你的思维方式真的很独特，我正在努力学习理解。",
+                "我注意到你经常使用这种表达方式，这让我更好地了解你。",
+                "随着我们交流的深入，我感觉对你的理解又加深了一层。",
+                "你提出了一个很好的问题，让我从你的角度来思考一下。",
+                "我正在分析你的语言模式，以便更好地模拟你的表达方式。",
+                "你的观点很有见地，我很高兴能与你进行这样的对话。"
+            ];
+            
+            // 滚动到最新消息
+            function scrollToBottom() {
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+            }
+            
+            // 添加消息到聊天区域
+            function addMessage(content, isUser = false) {
+                const messageDiv = document.createElement('div');
+                messageDiv.className = isUser ? 'flex justify-end space-x-3' : 'flex space-x-3';
+                
+                const currentTime = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+                
+                if (isUser) {
+                    messageDiv.innerHTML = `
+                        <div class="bg-black-lighter rounded-lg p-4 max-w-[80%] border border-gray-dark">
+                            <p>${content}</p>
+                            <div class="mt-3 text-xs text-gray-light">${currentTime}</div>
+                        </div>
+                        <div class="w-8 h-8 flex-shrink-0 flex items-center justify-center text-sm">
+                            (◕ᴗ◕✿)
+                        </div>
+                    `;
+                } else {
+                    messageDiv.innerHTML = `
+                        <div class="w-8 h-8 flex-shrink-0 flex items-center justify-center text-sm">
+                            ◕‿◕
+                        </div>
+                        <div class="bg-black-light rounded-lg p-4 max-w-[80%] border border-gray-dark">
+                            <p>${content}</p>
+                            <div class="mt-3 text-xs text-gray-light">${currentTime}</div>
+                        </div>
+                    `;
+                }
+                
+                chatMessages.appendChild(messageDiv);
+                scrollToBottom();
+                
+                // 应用文字渐入效果
+                const paragraphs = messageDiv.querySelectorAll('p');
+                paragraphs.forEach(paragraph => {
+                    const text = paragraph.textContent;
+                    paragraph.textContent = '';
+                    
+                    for (let i = 0; i < text.length; i++) {
+                        const span = document.createElement('span');
+                        span.textContent = text[i];
+                        span.style.transitionDelay = `${i * 10}ms`;
+                        paragraph.appendChild(span);
+                    }
+                    
+                    // 强制重排后添加动画
+                    setTimeout(() => {
+                        const spans = paragraph.querySelectorAll('span');
+                        spans.forEach(span => {
+                            span.style.opacity = '1';
+                            span.style.filter = 'blur(0)';
+                        });
+                    }, 10);
+                });
+            }
+            
+            // 模拟AI回复
+            function simulateAIResponse() {
+                // 显示正在输入状态
+                const typingDiv = document.createElement('div');
+                typingDiv.className = 'flex space-x-3';
+                typingDiv.id = 'typing-indicator';
+                typingDiv.innerHTML = `
+                    <div class="w-8 h-8 rounded-full bg-white flex-shrink-0 flex items-center justify-center">
+                        <i class="fa fa-robot text-black text-sm"></i>
+                    </div>
+                    <div class="bg-black-light rounded-lg p-4 max-w-[80%] border border-gray-dark">
+                        <p class="typing-animation">正在输入</p>
+                    </div>
+                `;
+                
+                chatMessages.appendChild(typingDiv);
+                scrollToBottom();
+                
+                // 随机延迟后显示回复
+                setTimeout(() => {
+                    document.getElementById('typing-indicator').remove();
+                    const randomResponse = aiResponses[Math.floor(Math.random() * aiResponses.length)];
+                    addMessage(randomResponse);
+                    
+                    // 更新学习进度
+                    updateLearningProgress();
+                }, 1500 + Math.random() * 2000);
+            }
+            
+            // 更新学习进度
+            function updateLearningProgress() {
+                const progressElements = document.querySelectorAll('.bg-white.h-1\\.5');
+                const progressTextElements = document.querySelectorAll('.text-xs.text-gray-light.text-right, .mt-1.text-xs.text-gray-light.text-right');
+                
+                // 获取当前进度
+                let currentProgress = 65; // 默认值
+                
+                // 尝试从现有元素获取当前进度
+                if (progressTextElements.length > 0) {
+                    const progressText = progressTextElements[0].textContent;
+                    const match = progressText.match(/(\d+)%/);
+                    if (match) {
+                        currentProgress = parseInt(match[1]);
+                    }
+                }
+                
+                // 增加一点进度（最多到95%）
+                const newProgress = Math.min(currentProgress + Math.random() * 2, 95);
+                
+                // 更新所有进度条和文本
+                progressElements.forEach(el => {
+                    el.style.width = `${newProgress}%`;
+                });
+                
+                progressTextElements.forEach(el => {
+                    el.textContent = `${Math.round(newProgress)}%`;
+                });
+                
+                // 更新底部状态栏的进度
+                const statusProgress = document.querySelector('footer .flex span:last-child');
+                if (statusProgress) {
+                    statusProgress.textContent = `AI学习进度: ${Math.round(newProgress)}%`;
+                }
+            }
+            
+            // 发送消息
+            function sendMessage() {
+                const message = messageInput.value.trim();
+                if (message) {
+                    addMessage(message, true);
+                    messageInput.value = '';
+                    
+                    // 模拟AI回复
+                    simulateAIResponse();
+                }
+            }
+            
+            // 切换导航项
+            function switchNavItem(activeItem) {
+                navItems.forEach(item => {
+                    item.classList.remove('active', 'bg-black-lighter', 'border', 'border-gray-dark');
+                    item.classList.add('hover:bg-black-lighter');
+                    const icon = item.querySelector('i');
+                    icon.classList.remove('text-white');
+                    icon.classList.add('text-gray-light');
+                });
+                
+                activeItem.classList.add('active', 'bg-black-lighter', 'border', 'border-gray-dark');
+                activeItem.classList.remove('hover:bg-black-lighter');
+                const icon = activeItem.querySelector('i');
+                icon.classList.add('text-white');
+                icon.classList.remove('text-gray-light');
+            }
+            
+            // 打字效果
+            function typingEffect(element, words, typingSpeed = 100, pauseTime = 1000) {
+                let wordIndex = 0;
+                let charIndex = 0;
+                let isDeleting = false;
+              
+                function type() {
+                    const currentWord = words[wordIndex];
+                  
+                    if (isDeleting) {
+                        // 删除字符
+                        element.textContent = currentWord.substring(0, charIndex - 1);
+                        charIndex--;
+                    } else {
+                        // 添加字符
+                        element.textContent = currentWord.substring(0, charIndex + 1);
+                        charIndex++;
+                    }
+                  
+                    // 处理删除/添加状态转换
+                    if (!isDeleting && charIndex === currentWord.length) {
+                        isDeleting = true;
+                        setTimeout(type, pauseTime); // 完成单词后暂停
+                    } else if (isDeleting && charIndex === 0) {
+                        isDeleting = false;
+                        wordIndex = (wordIndex + 1) % words.length; // 循环切换单词
+                        setTimeout(type, 200); // 短暂暂停后开始新单词
+                    } else {
+                        // 继续当前操作
+                        setTimeout(type, isDeleting ? typingSpeed/2 : typingSpeed);
+                    }
+                }
+              
+                type(); // 启动动画
+            }
+            
+            // 鼠标跟随效果
+            function mouseFollowEffect() {
+                let lastX = 0, lastY = 0;
+                const minDistance = 100; // 最小触发距离
+                const elements = [
+                    { type: 'circle', size: 8, color: 'rgba(255, 255, 255, 0.8)' },
+                    { type: 'circle', size: 4, color: 'rgba(255, 255, 255, 0.5)' },
+                    { type: 'line', length: 20, color: 'rgba(255, 255, 255, 0.3)' }
+                ];
+                let lastElements = []; // 存储最近使用的元素索引
+              
+                document.addEventListener('mousemove', (e) => {
+                    const currentX = e.clientX;
+                    const currentY = e.clientY;
+                  
+                    // 计算与上次位置的距离
+                    const distance = Math.sqrt(
+                        Math.pow(currentX - lastX, 2) + Math.pow(currentY - lastY, 2)
+                    );
+                  
+                    // 如果移动距离足够大，创建新元素
+                    if (distance > minDistance) {
+                        createFollowElement(currentX, currentY);
+                        lastX = currentX;
+                        lastY = currentY;
+                    }
+                });
+              
+                function createFollowElement(x, y) {
+                    // 选择不重复的元素类型
+                    let elementIndex;
+                    do {
+                        elementIndex = Math.floor(Math.random() * elements.length);
+                    } while (lastElements.includes(elementIndex));
+                  
+                    // 更新最近使用的元素记录
+                    lastElements.push(elementIndex);
+                    if (lastElements.length > 2) lastElements.shift(); // 保持最多记录3种
+                  
+                    const element = elements[elementIndex];
+                    const div = document.createElement('div');
+                    
+                    if (element.type === 'circle') {
+                        div.className = 'absolute rounded-full opacity-0 transition-all duration-500';
+                        div.style.width = `${element.size}px`;
+                        div.style.height = `${element.size}px`;
+                        div.style.backgroundColor = element.color;
+                    } else if (element.type === 'line') {
+                        div.className = 'absolute opacity-0 transition-all duration-500';
+                        div.style.width = `${element.length}px`;
+                        div.style.height = '1px';
+                        div.style.backgroundColor = element.color;
+                        // 随机旋转线条
+                        div.style.transform = `rotate(${Math.random() * 360}deg)`;
+                    }
+                    
+                    div.style.top = `${y}px`;
+                    div.style.left = `${x}px`;
+                    div.style.transformOrigin = 'center';
+                  
+                    mouseFollowContainer.appendChild(div);
+                  
+                    // 强制重排后添加动画
+                    setTimeout(() => {
+                        div.classList.add('opacity-100');
+                      
+                        // 0.5秒后开始淡出
+                        setTimeout(() => {
+                            div.classList.remove('opacity-100');
+                            div.classList.add('opacity-0');
+                          
+                            // 动画完成后移除元素
+                            setTimeout(() => {
+                                if (mouseFollowContainer.contains(div)) {
+                                    mouseFollowContainer.removeChild(div);
+                                }
+                            }, 500);
+                        }, 500);
+                    }, 10);
+                }
+            }
+            
+            // 事件监听器
+            
+            // 发送消息按钮点击
+            sendButton.addEventListener('click', sendMessage);
+            
+            // 输入框回车发送
+            messageInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    sendMessage();
+                }
+            });
+            
+            // 导航项点击
+            navItems.forEach(item => {
+                item.addEventListener('click', function() {
+                    const itemText = this.querySelector('span')?.textContent || '';
+                    
+                    // 切换导航项样式
+                    switchNavItem(this);
+                    
+                    // 处理不同导航项的功能
+                    if (itemText.includes('上传记录')) {
+                        uploadModal.classList.remove('hidden');
+                    } else if (itemText.includes('定制形象')) {
+                        customizationPanel.style.width = '360px';
+                    } else if (itemText.includes('对话')) {
+                        customizationPanel.style.width = '0';
+                    }
+                });
+            });
+            
+            // 关闭上传模态框
+            closeUploadModal.addEventListener('click', function() {
+                uploadModal.classList.add('hidden');
+            });
+            
+            cancelUpload.addEventListener('click', function() {
+                uploadModal.classList.add('hidden');
+            });
+            
+            // 帮助按钮点击
+            helpButton.addEventListener('click', function() {
+                helpModal.classList.remove('hidden');
+            });
+            
+            // 关闭帮助模态框
+            closeHelpModal.addEventListener('click', function() {
+                helpModal.classList.add('hidden');
+            });
+            
+            // 关闭定制面板（移动端）
+            closePanel.addEventListener('click', function() {
+                customizationPanel.style.width = '0';
+                
+                // 切换回对话导航项
+                const chatNavItem = Array.from(navItems).find(item => {
+                    return item.querySelector('span')?.textContent?.includes('对话');
+                });
+                
+                if (chatNavItem) {
+                    switchNavItem(chatNavItem);
+                }
+            });
+            
+            // 主题切换功能
+            const themeOptions = document.querySelectorAll('.theme-option');
+            
+            // 保存当前主题到本地存储
+            const saveTheme = (theme) => {
+                localStorage.setItem('appTheme', theme);
+            };
+            
+            // 加载保存的主题
+            const loadTheme = () => {
+                const savedTheme = localStorage.getItem('appTheme') || 'black';
+                applyTheme(savedTheme);
+            };
+            
+            // 应用主题
+            const applyTheme = (theme) => {
+                // 移除所有主题类
+                document.body.classList.remove('theme-black', 'theme-white', 'theme-dark-gray');
+                // 添加当前主题类
+                document.body.classList.add(`theme-${theme}`);
+                
+                // 更新主题选项的选中状态
+                themeOptions.forEach(option => {
+                    if (option.dataset.theme === theme) {
+                        option.classList.add('border-white');
+                        option.classList.remove('border-gray-dark');
+                        // 显示"当前"标签
+                        const currentLabel = option.querySelector('.text-xs.text-gray-light');
+                        if (!currentLabel || currentLabel.textContent !== '当前') {
+                            const existingLabel = option.querySelector('.text-xs.text-gray-light');
+                            if (existingLabel) existingLabel.remove();
+                            const newLabel = document.createElement('p');
+                            newLabel.className = 'text-xs text-gray-light text-center';
+                            newLabel.textContent = '当前';
+                            option.appendChild(newLabel);
+                        }
+                    } else {
+                        option.classList.remove('border-white');
+                        option.classList.add('border-gray-dark');
+                        // 移除"当前"标签
+                        const currentLabel = option.querySelector('.text-xs.text-gray-light');
+                        if (currentLabel && currentLabel.textContent === '当前') {
+                            currentLabel.remove();
+                        }
+                    }
+                });
+                
+                // 更新主题切换按钮图标
+                const icon = themeToggle.querySelector('i');
+                if (theme === 'black') {
+                    icon.className = 'fa fa-moon-o text-white text-xl';
+                } else {
+                    icon.className = 'fa fa-sun-o text-black text-xl';
+                }
+                
+                // 保存主题
+                saveTheme(theme);
+            };
+            
+            // 主题选项点击事件
+            themeOptions.forEach(option => {
+                option.addEventListener('click', () => {
+                    const theme = option.dataset.theme;
+                    applyTheme(theme);
+                });
+            });
+            
+            // 主题切换按钮点击事件（循环切换主题）
+            themeToggle.addEventListener('click', () => {
+                const themes = ['black', 'white', 'dark-gray'];
+                const currentTheme = document.body.classList.contains('theme-black') ? 'black' : 
+                                    document.body.classList.contains('theme-white') ? 'white' : 'dark-gray';
+                const currentIndex = themes.indexOf(currentTheme);
+                const nextIndex = (currentIndex + 1) % themes.length;
+                applyTheme(themes[nextIndex]);
+            });
+            
+            // 初始加载主题
+            loadTheme();
+            
+            // 点击模态框背景关闭
+            window.addEventListener('click', function(e) {
+                if (e.target === uploadModal) {
+                    uploadModal.classList.add('hidden');
+                }
+                if (e.target === helpModal) {
+                    helpModal.classList.add('hidden');
+                }
+            });
+            
+            // 初始化
+            scrollToBottom();
+            mouseFollowEffect();
+            
+            // 添加打字效果到AI消息
+            setTimeout(() => {
+                const typingElement = document.createElement('span');
+                typingElement.id = 'ai-typing';
+                typingElement.className = 'font-normal';
+                
+                // 初始化打字效果
+                typingEffect(
+                    typingElement,
+                    ['理解你的思维', '学习你的语言', '模拟你的表达', '成为另一个你'],
+                    80, 
+                    1000
+                );
+            }, 3000);
+        });
+    </script>
+    
+    <!-- 设置模态框 -->
+    <div id="settings-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center">
+        <div class="bg-black-light border border-gray-dark rounded-xl w-full max-w-2xl p-6 max-h-[90vh] flex flex-col">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-xl font-light">设置</h2>
+                <button id="close-settings-modal" class="p-2 rounded-full hover:bg-black-lighter transition-all-300">
+                    <i class="fa fa-times text-gray-light"></i>
+                </button>
+            </div>
+            
+            <div class="overflow-y-auto scrollbar-thin flex-1">
+                <!-- 设置选项卡导航 -->
+                <div class="flex border-b border-gray-dark mb-6">
+                    <button class="settings-tab active py-3 px-4 border-b-2 border-white font-light" data-tab="account">账户</button>
+                    <button class="settings-tab py-3 px-4 border-b-2 border-transparent font-light hover:text-white transition-all-300" data-tab="privacy">隐私</button>
+                    <button class="settings-tab py-3 px-4 border-b-2 border-transparent font-light hover:text-white transition-all-300" data-tab="notifications">通知</button>
+                    <button class="settings-tab py-3 px-4 border-b-2 border-transparent font-light hover:text-white transition-all-300" data-tab="appearance">外观</button>
+                    <button class="settings-tab py-3 px-4 border-b-2 border-transparent font-light hover:text-white transition-all-300" data-tab="data">数据</button>
+                </div>
+                
+                <!-- 账户设置 -->
+                <div id="account-settings" class="settings-content">
+                    <div class="space-y-6">
+                        <div>
+                            <h3 class="text-lg font-light mb-4">个人信息</h3>
+                            <div class="space-y-4">
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div>
+                                        <label class="block text-xs text-gray-light mb-1">用户名</label>
+                                        <input type="text" value="用户123" class="w-full bg-black border border-gray-dark rounded-lg py-2 px-3 focus:outline-none focus:border-white transition-all-300">
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs text-gray-light mb-1">邮箱</label>
+                                        <input type="email" value="user@example.com" class="w-full bg-black border border-gray-dark rounded-lg py-2 px-3 focus:outline-none focus:border-white transition-all-300">
+                                    </div>
+                                </div>
+                                <div>
+                                    <label class="block text-xs text-gray-light mb-1">简介</label>
+                                    <textarea rows="3" class="w-full bg-black border border-gray-dark rounded-lg py-2 px-3 focus:outline-none focus:border-white transition-all-300">这是我的AI对话伙伴，帮助我记录和整理思路。</textarea>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="pt-4 border-t border-gray-dark">
+                            <h3 class="text-lg font-light mb-4">修改密码</h3>
+                            <div class="space-y-4">
+                                <div>
+                                    <label class="block text-xs text-gray-light mb-1">当前密码</label>
+                                    <input type="password" placeholder="输入当前密码" class="w-full bg-black border border-gray-dark rounded-lg py-2 px-3 focus:outline-none focus:border-white transition-all-300">
+                                </div>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div>
+                                        <label class="block text-xs text-gray-light mb-1">新密码</label>
+                                        <input type="password" placeholder="输入新密码" class="w-full bg-black border border-gray-dark rounded-lg py-2 px-3 focus:outline-none focus:border-white transition-all-300">
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs text-gray-light mb-1">确认新密码</label>
+                                        <input type="password" placeholder="再次输入新密码" class="w-full bg-black border border-gray-dark rounded-lg py-2 px-3 focus:outline-none focus:border-white transition-all-300">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 隐私设置 -->
+                <div id="privacy-settings" class="settings-content hidden">
+                    <div class="space-y-6">
+                        <div>
+                            <h3 class="text-lg font-light mb-4">数据使用</h3>
+                            <div class="space-y-4">
+                                <div class="flex items-center justify-between">
+                                    <div>
+                                        <p class="font-light">允许AI分析我的对话内容以改进模型</p>
+                                        <p class="text-xs text-gray-light mt-1">你的对话数据将被匿名化处理</p>
+                                    </div>
+                                    <label class="relative inline-flex items-center cursor-pointer">
+                                        <input type="checkbox" class="sr-only peer" checked="">
+                                        <div class="w-11 h-6 bg-black border border-gray-dark peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-dark after:border after:rounded-full after:h-5 after:w-5 after:transition-all"></div>
+                                    </label>
+                                </div>
+                                <div class="flex items-center justify-between">
+                                    <div>
+                                        <p class="font-light">允许使用我的数据进行研究</p>
+                                        <p class="text-xs text-gray-light mt-1">帮助改进AI技术，但不会暴露你的个人信息</p>
+                                    </div>
+                                    <label class="relative inline-flex items-center cursor-pointer">
+                                        <input type="checkbox" class="sr-only peer">
+                                        <div class="w-11 h-6 bg-black border border-gray-dark peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-dark after:border after:rounded-full after:h-5 after:w-5 after:transition-all"></div>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="pt-4 border-t border-gray-dark">
+                            <h3 class="text-lg font-light mb-4">对话隐私</h3>
+                            <div class="space-y-4">
+                                <div class="flex items-center justify-between">
+                                    <div>
+                                        <p class="font-light">自动保存对话历史</p>
+                                        <p class="text-xs text-gray-light mt-1">所有对话将被保存以便后续访问</p>
+                                    </div>
+                                    <label class="relative inline-flex items-center cursor-pointer">
+                                        <input type="checkbox" class="sr-only peer" checked="">
+                                        <div class="w-11 h-6 bg-black border border-gray-dark peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-dark after:border after:rounded-full after:h-5 after:w-5 after:transition-all"></div>
+                                    </label>
+                                </div>
+                                <div class="flex items-center justify-between">
+                                    <div>
+                                        <p class="font-light">允许AI引用之前的对话内容</p>
+                                        <p class="text-xs text-gray-light mt-1">AI可以参考过去的对话来提供更连贯的回复</p>
+                                    </div>
+                                    <label class="relative inline-flex items-center cursor-pointer">
+                                        <input type="checkbox" class="sr-only peer" checked="">
+                                        <div class="w-11 h-6 bg-black border border-gray-dark peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-dark after:border after:rounded-full after:h-5 after:w-5 after:transition-all"></div>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 通知设置 -->
+                <div id="notifications-settings" class="settings-content hidden">
+                    <div class="space-y-6">
+                        <div>
+                            <h3 class="text-lg font-light mb-4">应用通知</h3>
+                            <div class="space-y-4">
+                                <div class="flex items-center justify-between">
+                                    <div>
+                                        <p class="font-light">新消息通知</p>
+                                        <p class="text-xs text-gray-light mt-1">当AI回复你的消息时收到通知</p>
+                                    </div>
+                                    <label class="relative inline-flex items-center cursor-pointer">
+                                        <input type="checkbox" class="sr-only peer" checked="">
+                                        <div class="w-11 h-6 bg-black border border-gray-dark peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-dark after:border after:rounded-full after:h-5 after:w-5 after:transition-all"></div>
+                                    </label>
+                                </div>
+                                <div class="flex items-center justify-between">
+                                    <div>
+                                        <p class="font-light">学习进度通知</p>
+                                        <p class="text-xs text-gray-light mt-1">当AI学习进度达到里程碑时通知你</p>
+                                    </div>
+                                    <label class="relative inline-flex items-center cursor-pointer">
+                                        <input type="checkbox" class="sr-only peer" checked="">
+                                        <div class="w-11 h-6 bg-black border border-gray-dark peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-dark after:border after:rounded-full after:h-5 after:w-5 after:transition-all"></div>
+                                    </label>
+                                </div>
+                                <div class="flex items-center justify-between">
+                                    <div>
+                                        <p class="font-light">系统更新通知</p>
+                                        <p class="text-xs text-gray-light mt-1">当应用有新功能或更新时通知你</p>
+                                    </div>
+                                    <label class="relative inline-flex items-center cursor-pointer">
+                                        <input type="checkbox" class="sr-only peer" checked="">
+                                        <div class="w-11 h-6 bg-black border border-gray-dark peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-dark after:border after:rounded-full after:h-5 after:w-5 after:transition-all"></div>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="pt-4 border-t border-gray-dark">
+                            <h3 class="text-lg font-light mb-4">通知方式</h3>
+                            <div class="space-y-4">
+                                <div class="flex items-center justify-between">
+                                    <div>
+                                        <p class="font-light">应用内通知</p>
+                                    </div>
+                                    <label class="relative inline-flex items-center cursor-pointer">
+                                        <input type="checkbox" class="sr-only peer" checked="">
+                                        <div class="w-11 h-6 bg-black border border-gray-dark peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-dark after:border after:rounded-full after:h-5 after:w-5 after:transition-all"></div>
+                                    </label>
+                                </div>
+                                <div class="flex items-center justify-between">
+                                    <div>
+                                        <p class="font-light">电子邮件通知</p>
+                                    </div>
+                                    <label class="relative inline-flex items-center cursor-pointer">
+                                        <input type="checkbox" class="sr-only peer">
+                                        <div class="w-11 h-6 bg-black border border-gray-dark peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-dark after:border after:rounded-full after:h-5 after:w-5 after:transition-all"></div>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 外观设置 -->
+                <div id="appearance-settings" class="settings-content hidden">
+                    <div class="space-y-6">
+                        <div>
+                            <h3 class="text-lg font-light mb-4">主题</h3>
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                <div class="theme-option border border-white rounded-lg p-4 cursor-pointer" data-theme="black">
+                                    <div class="w-full h-24 theme-preview-black border border-gray-dark rounded mb-3"></div>
+                                    <p class="font-light text-center">黑色极简</p>
+                                    <p class="text-xs text-gray-light text-center">当前</p>
+                                </div>
+                                <div class="theme-option border border-gray-dark rounded-lg p-4 cursor-pointer hover:border-white transition-all-300" data-theme="white">
+                                    <div class="w-full h-24 theme-preview-white border border-gray-dark rounded mb-3"></div>
+                                    <p class="font-light text-center">白色极简</p>
+                                </div>
+                                <div class="theme-option border border-gray-dark rounded-lg p-4 cursor-pointer hover:border-white transition-all-300" data-theme="dark-gray">
+                                    <div class="w-full h-24 theme-preview-dark-gray border border-gray-dark rounded mb-3"></div>
+                                    <p class="font-light text-center">深灰</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="pt-4 border-t border-gray-dark">
+                            <h3 class="text-lg font-light mb-4">字体</h3>
+                            <div class="space-y-4">
+                                <div>
+                                    <label class="block text-xs text-gray-light mb-1">字体大小</label>
+                                    <input type="range" min="12" max="20" value="16" class="w-full accent-white bg-black h-1.5 rounded-lg appearance-none cursor-pointer">
+                                    <div class="flex justify-between text-xs text-gray-light mt-1">
+                                        <span>小</span>
+                                        <span>中</span>
+                                        <span>大</span>
+                                    </div>
+                                </div>
+                                <div>
+                                    <label class="block text-xs text-gray-light mb-1">字体家族</label>
+                                    <select class="w-full bg-black border border-gray-dark rounded-lg py-2 px-3 focus:outline-none focus:border-white transition-all-300">
+                                        <option selected="">Inter</option>
+                                        <option>Roboto</option>
+                                        <option>SF Pro Display</option>
+                                        <option>Helvetica Neue</option>
+                                        <option>Arial</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 数据设置 -->
+                <div id="data-settings" class="settings-content hidden">
+                    <div class="space-y-6">
+                        <div>
+                            <h3 class="text-lg font-light mb-4">数据管理</h3>
+                            <div class="space-y-4">
+                                <div>
+                                    <p class="font-light mb-2">导出我的数据</p>
+                                    <p class="text-xs text-gray-light mb-3">下载你的聊天记录和AI学习数据的副本</p>
+                                    <button class="px-4 py-2 bg-black border border-gray-dark rounded-lg text-sm hover:bg-black-lighter transition-all-300">
+                                        导出数据
+                                    </button>
+                                </div>
+                                <div>
+                                    <p class="font-light mb-2">清除对话历史</p>
+                                    <p class="text-xs text-gray-light mb-3">删除所有保存的对话记录，但不会影响AI的学习进度</p>
+                                    <button class="px-4 py-2 bg-black border border-gray-dark rounded-lg text-sm hover:bg-black-lighter transition-all-300">
+                                        清除历史
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="pt-4 border-t border-gray-dark">
+                            <h3 class="text-lg font-light mb-4">重置AI</h3>
+                            <div class="space-y-4">
+                                <p class="text-xs text-gray-light mb-3">重置AI将清除所有学习数据，使AI回到初始状态。此操作无法撤销。</p>
+                                <button class="px-4 py-2 bg-black border border-red-500 text-red-500 rounded-lg text-sm hover:bg-red-900/20 transition-all-300">
+                                    重置AI
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="pt-4 border-t border-gray-dark">
+                            <h3 class="text-lg font-light mb-4">删除账户</h3>
+                            <div class="space-y-4">
+                                <p class="text-xs text-gray-light mb-3">删除账户将永久清除所有数据，包括对话历史、AI学习数据和个人信息。此操作无法撤销。</p>
+                                <button class="px-4 py-2 bg-black border border-red-500 text-red-500 rounded-lg text-sm hover:bg-red-900/20 transition-all-300">
+                                    删除账户
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="mt-6 pt-4 border-t border-gray-dark flex justify-end space-x-3">
+                <button id="cancel-settings" class="px-4 py-2 bg-black border border-gray-dark rounded-lg text-sm hover:bg-black-lighter transition-all-300">
+                    取消
+                </button>
+                <button id="save-settings" class="px-4 py-2 bg-white text-black rounded-lg text-sm hover:bg-white-off transition-all-300">
+                    保存设置
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // 设置页面功能
+        document.addEventListener('DOMContentLoaded', function() {
+            const settingsButton = document.getElementById('settings-button');
+            const settingsModal = document.getElementById('settings-modal');
+            const closeSettingsModal = document.getElementById('close-settings-modal');
+            const cancelSettings = document.getElementById('cancel-settings');
+            const saveSettings = document.getElementById('save-settings');
+            const settingsTabs = document.querySelectorAll('.settings-tab');
+            const settingsContents = document.querySelectorAll('.settings-content');
+            
+            // 打开设置模态框
+            settingsButton.addEventListener('click', function() {
+                settingsModal.classList.remove('hidden');
+            });
+            
+            // 关闭设置模态框
+            closeSettingsModal.addEventListener('click', function() {
+                settingsModal.classList.add('hidden');
+            });
+            
+            cancelSettings.addEventListener('click', function() {
+                settingsModal.classList.add('hidden');
+            });
+            
+            // 保存设置
+            saveSettings.addEventListener('click', function() {
+                // 这里可以添加保存设置的逻辑
+                settingsModal.classList.add('hidden');
+                
+                // 显示保存成功的提示
+                const notification = document.createElement('div');
+                notification.className = 'fixed bottom-4 right-4 bg-black-light border border-gray-dark rounded-lg px-4 py-3 z-50 animate-fade-in';
+                notification.innerHTML = `
+                    <div class="flex items-center">
+                        <i class="fa fa-check-circle text-green-500 mr-2"></i>
+                        <span>设置已保存</span>
+                    </div>
+                `;
+                document.body.appendChild(notification);
+                
+                // 3秒后移除通知
+                setTimeout(() => {
+                    notification.classList.add('opacity-0', 'transition-opacity', 'duration-500');
+                    setTimeout(() => {
+                        document.body.removeChild(notification);
+                    }, 500);
+                }, 3000);
+            });
+            
+            // 切换设置选项卡
+            settingsTabs.forEach(tab => {
+                tab.addEventListener('click', function() {
+                    const tabId = this.getAttribute('data-tab');
+                    
+                    // 切换选项卡样式
+                    settingsTabs.forEach(t => {
+                        t.classList.remove('active', 'border-white');
+                        t.classList.add('border-transparent');
+                    });
+                    this.classList.add('active', 'border-white');
+                    this.classList.remove('border-transparent');
+                    
+                    // 切换内容
+                    settingsContents.forEach(content => {
+                        content.classList.add('hidden');
+                    });
+                    document.getElementById(`${tabId}-settings`).classList.remove('hidden');
+                });
+            });
+            
+            // 点击模态框背景关闭
+            window.addEventListener('click', function(e) {
+                if (e.target === settingsModal) {
+                    settingsModal.classList.add('hidden');
+                }
+            });
+        });
+    </script>
+    
+    <!-- 定制形象模态框 -->
+    <div id="customize-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-black-light border border-gray-dark rounded-xl w-full max-w-5xl sm:max-w-6xl p-4 sm:p-6 max-h-[90vh] flex flex-col">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-xl font-light">定制形象</h2>
+                <button id="close-customize-modal" class="p-2 rounded-full hover:bg-black-lighter transition-all-300">
+                    <i class="fa fa-times text-gray-light"></i>
+                </button>
+            </div>
+            
+            <div class="flex flex-col lg:flex-row gap-4 h-full overflow-hidden">
+                <!-- 左侧：形象预览区 -->
+                <div class="flex-1 bg-black border border-gray-dark rounded-lg p-4 sm:p-6 flex flex-col items-center justify-center min-h-[400px]">
+                    <div class="text-center mb-4 sm:mb-6">
+                        <div id="ai-avatar-preview" class="text-4xl sm:text-5xl md:text-6xl mb-3 sm:mb-4 animate-bounce-slow">◕‿◕</div>
+                        <h3 id="ai-name-display" class="text-lg sm:text-xl font-light mb-2">AI伙伴</h3>
+                        <p id="ai-description-display" class="text-xs sm:text-sm text-gray-light max-w-xs mx-auto">基于你的聊天记录生成的数字伙伴</p>
+                    </div>
+                    
+                    <div class="w-full max-w-xs px-2">
+                        <div class="bg-black-lighter rounded-lg p-3 sm:p-4 mb-3 sm:mb-4">
+                            <h4 class="text-xs sm:text-sm font-light mb-2 sm:mb-3">性格特质</h4>
+                            <div id="personality-tags" class="flex flex-wrap gap-1 sm:gap-2">
+                                <span class="px-2 sm:px-3 py-1 bg-black border border-gray-dark rounded-full text-xs">友善</span>
+                                <span class="px-2 sm:px-3 py-1 bg-black border border-gray-dark rounded-full text-xs">智慧</span>
+                                <span class="px-2 sm:px-3 py-1 bg-black border border-gray-dark rounded-full text-xs">幽默</span>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-black-lighter rounded-lg p-3 sm:p-4">
+                            <h4 class="text-xs sm:text-sm font-light mb-2 sm:mb-3">对话风格</h4>
+                            <div id="style-tags" class="flex flex-wrap gap-1 sm:gap-2">
+                                <span class="px-2 sm:px-3 py-1 bg-black border border-gray-dark rounded-full text-xs">简洁</span>
+                                <span class="px-2 sm:px-3 py-1 bg-black border border-gray-dark rounded-full text-xs">温暖</span>
+                                <span class="px-2 sm:px-3 py-1 bg-black border border-gray-dark rounded-full text-xs">支持性</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 右侧：定制控制面板 -->
+                <div class="flex-1 overflow-y-auto scrollbar-thin min-h-[400px] max-w-full">
+                    <!-- 基本信息 -->
+                    <div class="mb-6 sm:mb-8">
+                        <h3 class="text-base sm:text-lg font-light mb-3 sm:mb-4">基本信息</h3>
+                        <div class="space-y-3 sm:space-y-4">
+                            <div>
+                                <label class="block text-xs text-gray-light mb-1">AI名称</label>
+                                <input type="text" id="ai-name-input" value="AI伙伴" class="w-full bg-black border border-gray-dark rounded-lg py-2 px-3 focus:outline-none focus:border-white transition-all-300 text-sm">
+                            </div>
+                            <div>
+                                <label class="block text-xs text-gray-light mb-1">简短描述</label>
+                                <textarea id="ai-description-input" rows="2" class="w-full bg-black border border-gray-dark rounded-lg py-2 px-3 focus:outline-none focus:border-white transition-all-300 text-sm">基于你的聊天记录生成的数字伙伴</textarea>
+                            </div>
+                            <div>
+                                <label class="block text-xs text-gray-light mb-1">颜文字表情</label>
+                                <input type="text" id="ai-emoji-input" value="◕‿◕" class="w-full bg-black border border-gray-dark rounded-lg py-2 px-3 focus:outline-none focus:border-white transition-all-300 text-sm">
+                                <div class="mt-2 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-1 sm:gap-2">
+                                    <button class="emoji-preset px-1 sm:px-2 py-1 bg-black border border-gray-dark rounded text-center hover:border-white transition-all-300 text-xs sm:text-sm">◕‿◕</button>
+                                    <button class="emoji-preset px-1 sm:px-2 py-1 bg-black border border-gray-dark rounded text-center hover:border-white transition-all-300 text-xs sm:text-sm">(◕ᴗ◕✿)</button>
+                                    <button class="emoji-preset px-1 sm:px-2 py-1 bg-black border border-gray-dark rounded text-center hover:border-white transition-all-300 text-xs sm:text-sm">(◍•ᴗ•◍)</button>
+                                    <button class="emoji-preset px-1 sm:px-2 py-1 bg-black border border-gray-dark rounded text-center hover:border-white transition-all-300 text-xs sm:text-sm">(*≧▽≦)</button>
+                                    <button class="emoji-preset px-1 sm:px-2 py-1 bg-black border border-gray-dark rounded text-center hover:border-white transition-all-300 text-xs sm:text-sm">ʕ•ᴥ•ʔ</button>
+                                    <button class="emoji-preset px-1 sm:px-2 py-1 bg-black border border-gray-dark rounded text-center hover:border-white transition-all-300 text-xs sm:text-sm">≧◡≦</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 性格特质 -->
+                    <div class="mb-6 sm:mb-8">
+                        <h3 class="text-base sm:text-lg font-light mb-3 sm:mb-4">性格特质</h3>
+                        <div class="space-y-3 sm:space-y-4">
+                            <div>
+                                <label class="block text-xs text-gray-light mb-1">添加特质</label>
+                                <div class="flex gap-2 flex-col sm:flex-row">
+                                    <input type="text" id="personality-input" placeholder="输入性格特质..." class="flex-1 bg-black border border-gray-dark rounded-lg py-2 px-3 focus:outline-none focus:border-white transition-all-300 text-sm">
+                                    <button id="add-personality-btn" class="px-3 sm:px-4 py-2 bg-white text-black rounded-lg text-xs sm:text-sm hover:bg-white-off transition-all-300 whitespace-nowrap">添加</button>
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-xs text-gray-light mb-1">推荐特质</label>
+                                <div class="flex flex-wrap gap-1 sm:gap-2">
+                                    <button class="trait-suggestion px-2 sm:px-3 py-1 bg-black border border-gray-dark rounded-full text-xs hover:border-white transition-all-300">友善</button>
+                                    <button class="trait-suggestion px-2 sm:px-3 py-1 bg-black border border-gray-dark rounded-full text-xs hover:border-white transition-all-300">智慧</button>
+                                    <button class="trait-suggestion px-2 sm:px-3 py-1 bg-black border border-gray-dark rounded-full text-xs hover:border-white transition-all-300">幽默</button>
+                                    <button class="trait-suggestion px-2 sm:px-3 py-1 bg-black border border-gray-dark rounded-full text-xs hover:border-white transition-all-300">耐心</button>
+                                    <button class="trait-suggestion px-2 sm:px-3 py-1 bg-black border border-gray-dark rounded-full text-xs hover:border-white transition-all-300">创意</button>
+                                    <button class="trait-suggestion px-2 sm:px-3 py-1 bg-black border border-gray-dark rounded-full text-xs hover:border-white transition-all-300">理性</button>
+                                    <button class="trait-suggestion px-2 sm:px-3 py-1 bg-black border border-gray-dark rounded-full text-xs hover:border-white transition-all-300">感性</button>
+                                    <button class="trait-suggestion px-2 sm:px-3 py-1 bg-black border border-gray-dark rounded-full text-xs hover:border-white transition-all-300">乐观</button>
+                                    <button class="trait-suggestion px-2 sm:px-3 py-1 bg-black border border-gray-dark rounded-full text-xs hover:border-white transition-all-300">谨慎</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 对话风格 -->
+                    <div class="mb-6 sm:mb-8">
+                        <h3 class="text-base sm:text-lg font-light mb-3 sm:mb-4">对话风格</h3>
+                        <div class="space-y-3 sm:space-y-4">
+                            <div>
+                                <label class="block text-xs text-gray-light mb-1">添加风格</label>
+                                <div class="flex gap-2 flex-col sm:flex-row">
+                                    <input type="text" id="style-input" placeholder="输入对话风格..." class="flex-1 bg-black border border-gray-dark rounded-lg py-2 px-3 focus:outline-none focus:border-white transition-all-300 text-sm">
+                                    <button id="add-style-btn" class="px-3 sm:px-4 py-2 bg-white text-black rounded-lg text-xs sm:text-sm hover:bg-white-off transition-all-300 whitespace-nowrap">添加</button>
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-xs text-gray-light mb-1">推荐风格</label>
+                                <div class="flex flex-wrap gap-1 sm:gap-2">
+                                    <button class="style-suggestion px-2 sm:px-3 py-1 bg-black border border-gray-dark rounded-full text-xs hover:border-white transition-all-300">简洁</button>
+                                    <button class="style-suggestion px-2 sm:px-3 py-1 bg-black border border-gray-dark rounded-full text-xs hover:border-white transition-all-300">温暖</button>
+                                    <button class="style-suggestion px-2 sm:px-3 py-1 bg-black border border-gray-dark rounded-full text-xs hover:border-white transition-all-300">支持性</button>
+                                    <button class="style-suggestion px-2 sm:px-3 py-1 bg-black border border-gray-dark rounded-full text-xs hover:border-white transition-all-300">专业</button>
+                                    <button class="style-suggestion px-2 sm:px-3 py-1 bg-black border border-gray-dark rounded-full text-xs hover:border-white transition-all-300">轻松</button>
+                                    <button class="style-suggestion px-2 sm:px-3 py-1 bg-black border border-gray-dark rounded-full text-xs hover:border-white transition-all-300">详细</button>
+                                    <button class="style-suggestion px-2 sm:px-3 py-1 bg-black border border-gray-dark rounded-full text-xs hover:border-white transition-all-300">直接</button>
+                                    <button class="style-suggestion px-2 sm:px-3 py-1 bg-black border border-gray-dark rounded-full text-xs hover:border-white transition-all-300">鼓励</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 描述词上传 -->
+                    <div class="mb-6 sm:mb-8">
+                        <h3 class="text-base sm:text-lg font-light mb-3 sm:mb-4">描述词上传</h3>
+                        <div class="space-y-3 sm:space-y-4">
+                            <div>
+                                <label class="block text-xs text-gray-light mb-1">上传描述词文件</label>
+                                <div class="border-2 border-dashed border-gray-dark rounded-lg p-4 sm:p-6 text-center">
+                                    <i class="fa fa-upload text-2xl sm:text-3xl text-gray-light mb-2 sm:mb-3"></i>
+                                    <p class="text-xs sm:text-sm mb-2">拖拽TXT文件到此处，或点击上传</p>
+                                    <p class="text-xs text-gray-light mb-2 sm:mb-3">文件格式：每行一个描述词</p>
+                                    <input type="file" id="description-file" accept=".txt" class="hidden">
+                                    <button id="upload-file-btn" class="px-3 sm:px-4 py-2 bg-black border border-gray-dark rounded-lg text-xs sm:text-sm hover:border-white transition-all-300">
+                                        选择文件
+                                    </button>
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-xs text-gray-light mb-1">批量输入描述词</label>
+                                <textarea id="batch-descriptions" rows="3 sm:rows-4" placeholder="输入多个描述词，每行一个..." class="w-full bg-black border border-gray-dark rounded-lg py-2 px-3 focus:outline-none focus:border-white transition-all-300 text-sm"></textarea>
+                                <button id="add-batch-descriptions" class="mt-2 px-3 sm:px-4 py-2 bg-white text-black rounded-lg text-xs sm:text-sm hover:bg-white-off transition-all-300">
+                                    添加所有描述词
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 高级设置 -->
+                    <div class="mb-6 sm:mb-8">
+                        <h3 class="text-base sm:text-lg font-light mb-3 sm:mb-4">高级设置</h3>
+                        <div class="space-y-3 sm:space-y-4">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="font-light text-sm">启用情感分析</p>
+                                    <p class="text-xs text-gray-light mt-1">让AI理解和回应用户的情绪</p>
+                                </div>
+                                <label class="relative inline-flex items-center cursor-pointer">
+                                    <input type="checkbox" id="emotion-analysis" class="sr-only peer" checked="">
+                                    <div class="w-10 h-5 sm:w-11 sm:h-6 bg-black border border-gray-dark peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-dark after:border after:rounded-full after:h-4 after:w-4 sm:h-5 sm:w-5 after:transition-all"></div>
+                                </label>
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="font-light text-sm">记忆对话历史</p>
+                                    <p class="text-xs text-gray-light mt-1">AI能够记住并引用之前的对话内容</p>
+                                </div>
+                                <label class="relative inline-flex items-center cursor-pointer">
+                                    <input type="checkbox" id="memory-history" class="sr-only peer" checked="">
+                                    <div class="w-10 h-5 sm:w-11 sm:h-6 bg-black border border-gray-dark peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-dark after:border after:rounded-full after:h-4 after:w-4 sm:h-5 sm:w-5 after:transition-all"></div>
+                                </label>
+                            </div>
+                            <div>
+                                <label class="block text-xs text-gray-light mb-1">回复长度</label>
+                                <input type="range" id="response-length" min="1" max="10" value="5" class="w-full accent-white bg-black h-1 sm:h-1.5 rounded-lg appearance-none cursor-pointer">
+                                <div class="flex justify-between text-xs text-gray-light mt-1">
+                                    <span>简短</span>
+                                    <span>中等</span>
+                                    <span>详细</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="mt-4 sm:mt-6 pt-3 sm:pt-4 border-t border-gray-dark flex justify-end space-x-2 sm:space-x-3">
+                <button id="cancel-customize" class="px-3 sm:px-4 py-2 bg-black border border-gray-dark rounded-lg text-xs sm:text-sm hover:bg-black-lighter transition-all-300">
+                    取消
+                </button>
+                <button id="save-customize" class="px-3 sm:px-4 py-2 bg-white text-black rounded-lg text-xs sm:text-sm hover:bg-white-off transition-all-300">
+                    保存形象
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // 定制形象功能
+        document.addEventListener('DOMContentLoaded', function() {
+            const customizeButton = document.getElementById('customize-button');
+            const customizeModal = document.getElementById('customize-modal');
+            const closeCustomizeModal = document.getElementById('close-customize-modal');
+            const cancelCustomize = document.getElementById('cancel-customize');
+            const saveCustomize = document.getElementById('save-customize');
+            
+            // 输入元素
+            const aiNameInput = document.getElementById('ai-name-input');
+            const aiDescriptionInput = document.getElementById('ai-description-input');
+            const aiEmojiInput = document.getElementById('ai-emoji-input');
+            const personalityInput = document.getElementById('personality-input');
+            const styleInput = document.getElementById('style-input');
+            const batchDescriptions = document.getElementById('batch-descriptions');
+            
+            // 预览元素
+            const aiAvatarPreview = document.getElementById('ai-avatar-preview');
+            const aiNameDisplay = document.getElementById('ai-name-display');
+            const aiDescriptionDisplay = document.getElementById('ai-description-display');
+            const personalityTags = document.getElementById('personality-tags');
+            const styleTags = document.getElementById('style-tags');
+            
+            // 文件上传
+            const descriptionFile = document.getElementById('description-file');
+            const uploadFileBtn = document.getElementById('upload-file-btn');
+            
+            // 打开定制模态框
+            customizeButton.addEventListener('click', function() {
+                customizeModal.classList.remove('hidden');
+            });
+            
+            // 关闭定制模态框
+            closeCustomizeModal.addEventListener('click', function() {
+                customizeModal.classList.add('hidden');
+            });
+            
+            cancelCustomize.addEventListener('click', function() {
+                customizeModal.classList.add('hidden');
+            });
+            
+            // 保存定制
+            saveCustomize.addEventListener('click', function() {
+                // 这里可以添加保存定制的逻辑
+                customizeModal.classList.add('hidden');
+                
+                // 显示保存成功的提示
+                const notification = document.createElement('div');
+                notification.className = 'fixed bottom-4 right-4 bg-black-light border border-gray-dark rounded-lg px-4 py-3 z-50 animate-fade-in';
+                notification.innerHTML = `
+                    <div class="flex items-center">
+                        <i class="fa fa-check-circle text-green-500 mr-2"></i>
+                        <span>形象定制已保存</span>
+                    </div>
+                `;
+                document.body.appendChild(notification);
+                
+                // 3秒后移除通知
+                setTimeout(() => {
+                    notification.classList.add('opacity-0', 'transition-opacity', 'duration-500');
+                    setTimeout(() => {
+                        document.body.removeChild(notification);
+                    }, 500);
+                }, 3000);
+            });
+            
+            // 实时预览更新
+            aiNameInput.addEventListener('input', function() {
+                aiNameDisplay.textContent = this.value || 'AI伙伴';
+            });
+            
+            aiDescriptionInput.addEventListener('input', function() {
+                aiDescriptionDisplay.textContent = this.value || '基于你的聊天记录生成的数字伙伴';
+            });
+            
+            aiEmojiInput.addEventListener('input', function() {
+                aiAvatarPreview.textContent = this.value || '◕‿◕';
+            });
+            
+            // 添加性格特质
+            document.getElementById('add-personality-btn').addEventListener('click', function() {
+                const trait = personalityInput.value.trim();
+                if (trait) {
+                    addPersonalityTag(trait);
+                    personalityInput.value = '';
+                }
+            });
+            
+            personalityInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    const trait = this.value.trim();
+                    if (trait) {
+                        addPersonalityTag(trait);
+                        this.value = '';
+                    }
+                }
+            });
+            
+            // 添加对话风格
+            document.getElementById('add-style-btn').addEventListener('click', function() {
+                const style = styleInput.value.trim();
+                if (style) {
+                    addStyleTag(style);
+                    styleInput.value = '';
+                }
+            });
+            
+            styleInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    const style = this.value.trim();
+                    if (style) {
+                        addStyleTag(style);
+                        this.value = '';
+                    }
+                }
+            });
+            
+            // 批量添加描述词
+            document.getElementById('add-batch-descriptions').addEventListener('click', function() {
+                const descriptions = batchDescriptions.value.trim().split('\n');
+                descriptions.forEach(desc => {
+                    if (desc.trim()) {
+                        // 随机添加到性格特质或对话风格
+                        if (Math.random() > 0.5) {
+                            addPersonalityTag(desc.trim());
+                        } else {
+                            addStyleTag(desc.trim());
+                        }
+                    }
+                });
+                batchDescriptions.value = '';
+            });
+            
+            // 文件上传处理
+            uploadFileBtn.addEventListener('click', function() {
+                descriptionFile.click();
+            });
+            
+            descriptionFile.addEventListener('change', function(e) {
+                const file = e.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        const content = e.target.result;
+                        const descriptions = content.split('\n');
+                        descriptions.forEach(desc => {
+                            if (desc.trim()) {
+                                // 随机添加到性格特质或对话风格
+                                if (Math.random() > 0.5) {
+                                    addPersonalityTag(desc.trim());
+                                } else {
+                                    addStyleTag(desc.trim());
+                                }
+                            }
+                        });
+                        
+                        // 显示上传成功提示
+                        const notification = document.createElement('div');
+                        notification.className = 'fixed bottom-4 right-4 bg-black-light border border-gray-dark rounded-lg px-4 py-3 z-50 animate-fade-in';
+                        notification.innerHTML = `
+                            <div class="flex items-center">
+                                <i class="fa fa-check-circle text-green-500 mr-2"></i>
+                                <span>文件上传成功，已添加 ${descriptions.filter(d => d.trim()).length} 个描述词</span>
+                            </div>
+                        `;
+                        document.body.appendChild(notification);
+                        
+                        setTimeout(() => {
+                            notification.classList.add('opacity-0', 'transition-opacity', 'duration-500');
+                            setTimeout(() => {
+                                document.body.removeChild(notification);
+                            }, 500);
+                        }, 3000);
+                    };
+                    reader.readAsText(file);
+                }
+            });
+            
+            // 颜文字预设
+            document.querySelectorAll('.emoji-preset').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    aiEmojiInput.value = this.textContent;
+                    aiAvatarPreview.textContent = this.textContent;
+                });
+            });
+            
+            // 推荐特质
+            document.querySelectorAll('.trait-suggestion').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    addPersonalityTag(this.textContent);
+                });
+            });
+            
+            // 推荐风格
+            document.querySelectorAll('.style-suggestion').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    addStyleTag(this.textContent);
+                });
+            });
+            
+            // 添加性格特质标签
+            function addPersonalityTag(text) {
+                // 检查是否已存在
+                const existingTags = Array.from(personalityTags.children).map(tag => tag.textContent);
+                if (existingTags.includes(text)) return;
+                
+                const tag = document.createElement('span');
+                tag.className = 'px-3 py-1 bg-black border border-gray-dark rounded-full text-xs flex items-center gap-1';
+                tag.innerHTML = `
+                    ${text}
+                    <button class="ml-1 text-gray-light hover:text-white transition-all-300" onclick="this.parentElement.remove()">×</button>
+                `;
+                personalityTags.appendChild(tag);
+            }
+            
+            // 添加对话风格标签
+            function addStyleTag(text) {
+                // 检查是否已存在
+                const existingTags = Array.from(styleTags.children).map(tag => tag.textContent.replace('×', '').trim());
+                if (existingTags.includes(text)) return;
+                
+                const tag = document.createElement('span');
+                tag.className = 'px-3 py-1 bg-black border border-gray-dark rounded-full text-xs flex items-center gap-1';
+                tag.innerHTML = `
+                    ${text}
+                    <button class="ml-1 text-gray-light hover:text-white transition-all-300" onclick="this.parentElement.remove()">×</button>
+                `;
+                styleTags.appendChild(tag);
+            }
+            
+            // 点击模态框背景关闭
+            window.addEventListener('click', function(e) {
+                if (e.target === customizeModal) {
+                    customizeModal.classList.add('hidden');
+                }
+            });
+        });
+    </script>
+
+</body></html>
